@@ -40,9 +40,9 @@
 % Marcelo Cicconet
 % marceloc.net
 
-function A = wcht_acc(G,rad,sc,nor)
+function A = wchtacc(I,rad,sc,nor)
 
-[nr,nc] = size(G);
+[nr,nc] = size(I);
 
 rrs = zeros(2,nor);
 crs = zeros(2,nor);
@@ -62,18 +62,17 @@ for or = 1:nor
     crs(2,or) = cr2+round(rad*sin(ang));
 end
 
-Js = zeros(size(S,1),size(S,2),nor);
 for or = 1:nor
-    J = G(rrs(1,or):rrs(2,or),...
+    J = I(rrs(1,or):rrs(2,or),...
         crs(1,or):crs(2,or));
     
     ang = (or-1)/nor*360;
-    [mr,~] = smorlet(1,sc,ang,1);
+    [mr,mi] = smorlet(1,sc,ang,1);
 
-    J = conv2(J,mr,'same');
-    Js(:,:,or) = J.*(J > 0);
+    R = conv2(J,mr,'same');
+    Z = conv2(J,mi,'same');
     
-    S = S+J;
+    S = S+sqrt(R.^2+Z.^2);
 end
 
 A = zeros(nr,nc);

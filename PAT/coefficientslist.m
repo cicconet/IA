@@ -1,6 +1,6 @@
-function [m,a,x,y] = coefficientslist(I,nangs,stretch,scale,hopsize,halfwindowsize,magthreshold)
+function [m,a,x,y] = coefficientslist(I,nangs,stretch,scale,hopsize,halfwindowsize,magthreshold,convtype)
 
-[M,A,X,Y] = coefficientsmatrix(I,nangs,stretch,scale,hopsize,halfwindowsize,magthreshold);
+[M,A,X,Y] = coefficientsmatrix(I,nangs,stretch,scale,hopsize,halfwindowsize,magthreshold,convtype);
 s = sum(sum(M > 0));
 m = zeros(1,s);
 a = zeros(1,s);

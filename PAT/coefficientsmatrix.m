@@ -1,4 +1,4 @@
-function [M,A,X,Y] = coefficientsmatrix(I,nangs,stretch,scale,hopsize,halfwindowsize,magthreshold)
+function [M,A,X,Y] = coefficientsmatrix(I,nangs,stretch,scale,hopsize,halfwindowsize,magthreshold,convtype)
 % I should be double, and in the range [0,1]
 
 orientations = (0:nangs-1)*180/nangs;
@@ -19,12 +19,20 @@ RI3 = zeros(size(I,1),size(I,2),norientations);
 for j = 1:norientations
     orientation = orientations(j);
 
-    [mr,~] = smorlet(stretch,scale,orientation,1);
+    [mr,mi] = smorlet(stretch,scale,orientation,1);
 
-    R = conv2(I,mr,'same');
-%     Z = conv2(I,mi,'same');
-    
-    RI3(:,:,j) = R; % sqrt(R.*R+Z.*Z);
+    if strcmp(convtype,'real')
+        RI3(:,:,j) = conv2(I,mr,'same');
+    elseif strcmp(convtype,'real+')
+        R = conv2(I,mr,'same');
+        RI3(:,:,j) = R.*(R > 0);
+    elseif strcmp(convtype,'imag')
+        RI3(:,:,j) = conv2(I,mi,'same');
+    elseif strcmp(convtype,'complex')
+        R = conv2(I,mr,'same');
+        Z = conv2(I,mi,'same');
+        RI3(:,:,j) = sqrt(R.*R+Z.*Z);
+    end
 end
 
 rows = round(linspace(halfwindowsize+1,size(I,1)-halfwindowsize,nr));
