@@ -1,7 +1,11 @@
 function [M,A,X,Y] = coefficientsmatrix(I,nangs,stretch,scale,hopsize,halfwindowsize,magthreshold,convtype)
 % I should be double, and in the range [0,1]
 
-orientations = (0:nangs-1)*180/nangs;
+if ~strcmp(convtype,'imag')
+    orientations = (0:nangs-1)*180/nangs;
+else
+    orientations = (0:nangs-1)*360/nangs;
+end
 norientations = length(orientations);
 
 windowsize = 2*halfwindowsize;
@@ -49,7 +53,11 @@ for k = 1:nr
         C(k,l) = mR;
         rm = imC(imR);
         cm = imR;
-        A(k,l) = (IM(rm,cm)-1)*pi/nangs+pi/2;
+        if ~strcmp(convtype,'imag')
+            A(k,l) = (IM(rm,cm)-1)*pi/nangs+pi/2;
+        else
+            A(k,l) = (IM(rm,cm)-1)*2*pi/nangs+pi/2;
+        end
         X(k,l) = row+rm-(halfwindowsize+1);
         Y(k,l) = col+cm-(halfwindowsize+1);
     end
