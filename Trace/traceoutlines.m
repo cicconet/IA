@@ -1,9 +1,9 @@
 function [trs, RGB, DRGB, BW] = traceoutlines(I,thr1,thr2)
 
 % I: grayscale, range [0,1] image
-% thr1: traces start only at magnitudes above this threshold
+% thr1: traces start only at magnitudes above this threshold;
 %       should be in [0,1]
-% thr2: traces end if magnitude below this thr
+% thr2: traces end if magnitude below this thr;
 %       should be < thr1 and in [0,1]
 % trs: cell of outlines; trs{i}: n by 2 matrix or (row,col) of trace
 % RGB: magnitude/orientation matrix
@@ -15,7 +15,7 @@ function [trs, RGB, DRGB, BW] = traceoutlines(I,thr1,thr2)
 [nr,nc] = size(I);
 
 step = 1; % trace step
-hbw = 1; % set to 3 to suppress more nearby gradients
+hbw = 1; % half band width; set to 3 to suppress more nearby gradients
 
 % suppress pixels at the boundary
 M = suppressboundary(M,5);
@@ -37,41 +37,50 @@ cs = cs(idx);
 
 DRGB = zeros(size(RGB)); 
 BW = zeros(nr,nc);
-V = zeros(nr,nc);
+V = zeros(nr,nc); % visited points
 
-p = [rs(1) cs(1)];
-a = T(p(1),p(2));
+p = [rs(1) cs(1)]; % point; very first trace starts here
+a = T(p(1),p(2)); % angle
 
-count = 0;
-trs = {};
+ntraces = 0; % number of traces
+trs = {}; % traces
 ms = zeros(1,2*hbw+1);
 while 1
     % adjust location of initial point of trace
-    for j = -hbw:hbw
-        q = round(p+j*[cos(a) sin(a)]);
+    for j = -hbw:hbw % look at band perpendicular to tangent
+        q = round(p+j*[cos(a) sin(a)]); % starting from here
         aq = T(q(1),q(2));
-        if q(1) >= 1 && q(1) <= nr && q(2) >= 1 && q(2) <= nc && ~V(q(1),q(2)) && dot([cos(a) sin(a)],[cos(aq) sin(aq)]) > 0.9
+        if q(1) >= 1 && q(1) <= nr && q(2) >= 1 && q(2) <= nc ... % inside image
+                && ~V(q(1),q(2)) ... % not yet visited
+                && dot([cos(a) sin(a)],[cos(aq) sin(aq)]) > 0.9 %% coherent with angle at p
             ms(hbw+1+j) = M(q(1),q(2));
         else
             ms(hbw+1+j) = 0;
         end
         index = find(rs == q(1) & cs == q(2));
-        rs(index) = [];
+        rs(index) = []; % eliminate from list of selected pixels
         cs(index) = [];
-        V(q(1),q(2)) = 1;
+        V(q(1),q(2)) = 1; % mark as visited
     end
     [m,im] = max(ms);
     j = im-hbw-1;        
-    p0 = round(p+j*[cos(a) sin(a)]);
-    a0 = T(p(1),p(2));
+    p0 = round(p+j*[cos(a) sin(a)]); % adjusted location of starting point
+    a0 = T(p(1),p(2)); % adjusted angle
     m0 = m;
+    
+    % the starting point might be in the middle of the final trace
+    % so we're going to trace on each direction
+    % each step has two parts:
+    % 1. advance in the direction of the tangent
+    % 2. adjust (i.e., project onto curve), similarly to how the initial
+    % point was adjusted above
     
     % trace in one direction
     tr = [];
     p = p0;
     a = a0;
     m = m0;
-    while m > thr2
+    while m > thr2 % self explanatory
         tr = [tr; p];
         
         % advance
@@ -98,11 +107,12 @@ while 1
         a = T(p(1),p(2));
     end
     
-    % trace other direction
+    % trace in the other direction
     p = p0;
     a = a0;
     
     % first point already on trace, so first step out of the loop
+    % and not 'recorded'
     
     % advance
     p = round(p-step*[sin(a) -cos(a)]);
@@ -168,8 +178,8 @@ while 1
         end
     end
     
-    count = count+1;
-    trs{count} = tr;
+    ntraces = ntraces+1;
+    trs{ntraces} = tr;
     tr = [];
 
     if ~isempty(rs)
@@ -181,7 +191,7 @@ while 1
 end
 
 if nargout > 2
-    for itr = 1:length(trs)
+    for itr = 1:ntraces
         tr = trs{itr};
         for i = 1:size(tr,1)
             DRGB(tr(i,1),tr(i,2),:) = RGB(tr(i,1),tr(i,2),:);
