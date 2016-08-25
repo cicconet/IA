@@ -1,4 +1,4 @@
-function [M,A,X,Y] = coefficientsmatrix(I,nangs,stretch,scale,hopsize,halfwindowsize,magthreshold,convtype)
+function [M,A,X,Y] = coefficientsmatrix(I,nangs,stretch,scale,npeaks,hopsize,halfwindowsize,magthreshold,convtype,padtype)
 % I should be double, and in the range [0,1]
 
 if ~strcmp(convtype,'imag')
@@ -20,21 +20,23 @@ Y = zeros(nr,nc);
 
 RI3 = zeros(size(I,1),size(I,2),norientations);
 
+[mr,~] = smorlet(stretch,scale,0,npeaks);
+PI = padarray(I,(size(mr)-1)/2,padtype);
 for j = 1:norientations
     orientation = orientations(j);
 
-    [mr,mi] = smorlet(stretch,scale,orientation,1);
-
+    [mr,mi] = smorlet(stretch,scale,orientation,npeaks);
+    
     if strcmp(convtype,'real')
-        RI3(:,:,j) = conv2(I,mr,'same');
+        RI3(:,:,j) = conv2(PI,mr,'valid');
     elseif strcmp(convtype,'real+')
-        R = conv2(I,mr,'same');
+        R = conv2(PI,mr,'valid');
         RI3(:,:,j) = R.*(R > 0);
     elseif strcmp(convtype,'imag')
-        RI3(:,:,j) = conv2(I,mi,'same');
+        RI3(:,:,j) = conv2(PI,mi,'valid');
     elseif strcmp(convtype,'complex')
-        R = conv2(I,mr,'same');
-        Z = conv2(I,mi,'same');
+        R = conv2(PI,mr,'valid');
+        Z = conv2(PI,mi,'valid');
         RI3(:,:,j) = sqrt(R.*R+Z.*Z);
     end
 end

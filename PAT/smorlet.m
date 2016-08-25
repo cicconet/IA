@@ -60,7 +60,7 @@ theta = -(orientation-90)/360*2*pi;
 gamma = 1/(1+stretch);
 
 % width and height of kernel
-support = 2.5*sigma/gamma;
+support = ceil(2.5*sigma/gamma);
 
 % wavelength (default: 4*sigma)
 lambda = 1/npeaks*4*sigma;
