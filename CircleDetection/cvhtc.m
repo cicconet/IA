@@ -18,7 +18,7 @@ function A = cvhtc(I,radrange,varargin)
 % ----------
 % REFERENCE
 % M. Cicconet, D. Geiger, and M. Werman. Complex-Valued Hough Transforms for Circles.
-% IEEE International Conference on Image Processing, 2015, Quebec City, Canada
+% IEEE International Conference on Image Processing, 2015, Quebec City, Canada.
 %   
 % Marcelo Cicconet, 2016 Aug 24
 
@@ -51,7 +51,7 @@ end
 A = A.*conj(A);
 
 if param.BlurFlag
-    A = filterGauss2D(A,param.BlurScale);
+    A = imfilter(A,fspecial('gaussian',4*param.BlurScale*[1 1],param.BlurScale));
 end
 
 A = A/max(max(A));
