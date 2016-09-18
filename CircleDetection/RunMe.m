@@ -20,6 +20,7 @@ else
     A = A/max(max(A));
     imshow([I A])
 end
+title('wbht')
 
 
 %% complex-valued hough tranform for circles
@@ -36,7 +37,33 @@ bw = imregionalmax(A).*(A > 0.5);
 
 figure
 subplot(1,2,1)
-imshow(A), title('circle center likelihood')
+imshow(A), title('circle center likelihood (cvhtc)')
 subplot(1,2,2)
 imshow(0.5*I), hold on
-spy(bw), title('circle centers')
+spy(bw,'w'), title('circle centers')
+
+
+%% circles from triangles
+
+I = imread('coins.png');
+I = double(I)/255;
+
+radrange = [10 40];
+
+[m,a,x,y] = coefficientslist(I,'HopSize',5,'WavStretch',1,'WavScale',2);
+
+% J = drawoutputslist(I,x,y,m,a,3,2,1,0); imshow(J), return
+
+alpha = 0.5; % only pairs from alpha*'total number of tangents' tangents are considered
+A = cft(I,radrange,m,a,x,y,alpha);
+
+A = normalize(imfilter(A,fspecial('gaussian',8,2)));
+
+bw = imregionalmax(A).*(A > 0.1);
+
+figure
+subplot(1,2,1)
+imshow(A), title('circle center likelihood (cft)')
+subplot(1,2,2)
+imshow(0.5*I), hold on
+spy(bw,'w'), title('circle centers')
