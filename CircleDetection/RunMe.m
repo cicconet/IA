@@ -52,7 +52,7 @@ radrange = [10 40];
 
 [m,a,x,y] = coefficientslist(I,'HopSize',5,'WavStretch',1,'WavScale',2);
 
-% J = drawoutputslist(I,x,y,m,a,3,2,1,0); imshow(J), return
+% J = drawoutputslist(I,x,y,m,a,5,2,1,0); imshow(J), return
 
 alpha = 0.5; % only pairs from alpha*'total number of tangents' tangents are considered
 A = cft(I,radrange,m,a,x,y,alpha);
