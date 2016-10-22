@@ -6,7 +6,7 @@ I = double(rgb2gray(I))/255;
 
 I = adapthisteq(I,'NumTiles',[8 8]);
 % I = imrotate(I,90); % transform I to test robustness
-I = fliplr(I); % transform I to test robustness
+% I = fliplr(I); % transform I to test robustness
 
 [m,a,x,y] = coefficientslist(I,'HopSize',5,'WavStretch',1,'WavScale',1);
 % J = drawoutputslist(I,x,y,m,a,5,2,1,0); imshow(J), return
