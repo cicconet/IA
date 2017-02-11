@@ -1,7 +1,9 @@
-function switchbetween(I,J)
+function switchbetween(I,J,ntimes)
 
 s = 0;
-while 1
+i = -1;
+while i < ntimes
+    i = i+1;
     if s == 0
         imshow(I), title('first'), pause
         s = 1;
@@ -10,5 +12,6 @@ while 1
         s = 0;
     end
 end
+close all
 
 end
